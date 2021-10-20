@@ -132,9 +132,10 @@ MonoBehaviour:
   Factor: 0
   diff: {x: 0, y: 0, z: 0}
   invertedDiff: {x: 0, y: 0, z: 0}
-  LineMultiplier: 3
+  LineMultiplier: 0.05
   CubePushForce: 1
-  multiplier: 1.5
+  multiplier: 0.1
+  finalFactorMax: 4
 --- !u!120 &7538255053041369213
 LineRenderer:
   m_ObjectHideFlags: 0

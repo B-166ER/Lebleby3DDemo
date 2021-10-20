@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class CoinBehaviour : MonoBehaviour
 {
@@ -18,6 +19,7 @@ public class CoinBehaviour : MonoBehaviour
     RaycastHit[] hits;
     public float LineMultiplier;
     public float CubePushForce;
+    public bool PassedTheLine = false;
 
     void Start()
     {
@@ -33,18 +35,25 @@ public class CoinBehaviour : MonoBehaviour
     }
 
     [SerializeField] float multiplier;
-    Vector3 finalPushForce;
+    Vector3 MouseVector;
+    [SerializeField] float finalFactorMax;
     private void OnMouseUp()
     {
         lineR.enabled = false;
+        PassedTheLine = false;
         mouseEndPosition = Input.mousePosition;
         if (isBeingHeldDown)
         {
             if (Mathf.Abs(diff.x) > deadZoneSize || Mathf.Abs(diff.z) > deadZoneSize)
             {
-                finalPushForce = mouseStartPosition - mouseEndPosition *  multiplier;
-                rb2d.AddForce(invertedDiff.normalized * finalPushForce.magnitude);
-                iAmMoving = true;
+                MouseVector = (mouseStartPosition - mouseEndPosition) *  multiplier;
+                Debug.Log("final push force :" + MouseVector);
+                float finalFactor = MouseVector.magnitude;
+                Debug.Log("a:" + finalFactor);
+                if (finalFactor > finalFactorMax)
+                    finalFactor = finalFactorMax;
+                Debug.Log("b:" + finalFactor);
+                rb2d.AddForce(invertedDiff * finalFactor);
             }
         }
 
@@ -68,6 +77,7 @@ public class CoinBehaviour : MonoBehaviour
                 RaycastHit hit = hits[i];
                 if (hit.collider.gameObject.GetComponent<CoinBehaviour>() == this)
                 {
+                    PassedTheLine = true;
                     Debug.LogError("I AM PASSING THE RIGHT LINE");
                 }
             }
@@ -90,12 +100,30 @@ public class CoinBehaviour : MonoBehaviour
             Vector3 pos = gameObject.transform.position;
             pos.y = 0;
             lineR.SetPosition(0, pos);
-            lineR.SetPosition(1, (pos+ invertedDiff.normalized * LineMultiplier) );
+            lineR.SetPosition(1, pos + invertedDiff * LineMultiplier );
         }
 
         if (rb2d.velocity.x == 0 && rb2d.velocity.z == 0)
+        {
+            if (iAmMoving == true)
+                IStoped();
             iAmMoving = false;
+        }
         else
             iAmMoving = true;
+    }
+    void IStoped()
+    {
+        //lose condition reload scene
+        if ( PassedTheLine == false )
+            SceneManager.LoadScene("SampleScene");
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.gameObject.GetComponent<GoalPostBehaviour>() != null && PassedTheLine)
+        {
+            Debug.Log("GOAL");
+        }
     }
 }
