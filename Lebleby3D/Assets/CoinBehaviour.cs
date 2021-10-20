@@ -47,12 +47,9 @@ public class CoinBehaviour : MonoBehaviour
             if (Mathf.Abs(diff.x) > deadZoneSize || Mathf.Abs(diff.z) > deadZoneSize)
             {
                 MouseVector = (mouseStartPosition - mouseEndPosition) *  multiplier;
-                Debug.Log("final push force :" + MouseVector);
                 float finalFactor = MouseVector.magnitude;
-                Debug.Log("a:" + finalFactor);
                 if (finalFactor > finalFactorMax)
                     finalFactor = finalFactorMax;
-                Debug.Log("b:" + finalFactor);
                 rb2d.AddForce(invertedDiff * finalFactor);
             }
         }
@@ -78,7 +75,6 @@ public class CoinBehaviour : MonoBehaviour
                 if (hit.collider.gameObject.GetComponent<CoinBehaviour>() == this)
                 {
                     PassedTheLine = true;
-                    Debug.LogError("I AM PASSING THE RIGHT LINE");
                 }
             }
         }
@@ -114,9 +110,17 @@ public class CoinBehaviour : MonoBehaviour
     }
     void IStoped()
     {
+        if (!PassedTheLine)
+        {
+            Debug.Log("stopped but didnt passed the line");
+
+        }else if (PassedTheLine)
+        {
+            Debug.Log("stopped and passed the line");
+        }
         //lose condition reload scene
-        if ( PassedTheLine == false )
-            SceneManager.LoadScene("SampleScene");
+        //if ( PassedTheLine == false )
+            //SceneManager.LoadScene("SampleScene");
     }
 
     private void OnTriggerEnter(Collider other)
